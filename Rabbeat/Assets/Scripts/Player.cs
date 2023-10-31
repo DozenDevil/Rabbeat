@@ -1,38 +1,71 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.PlasticSCM.Editor.WebApi;
 using UnityEditorInternal;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    [SerializeField] private Transform playerPosition;
     [SerializeField] private Rigidbody2D rb;
-    [SerializeField] private bool isTouchingWall;
+    [SerializeField] private float jumpForceY = 10f;
+    [SerializeField] private float jumpForceX = 10f;
+    [SerializeField] private float runSpeed = 6f;
+
+    private bool isTouchingWall;
     private bool rightWall;
     private bool startGame = true;
+    private bool isRunUp, isRun;
+    private Vector3 previousPosition;
+    private bool cameraMoveX;
+    public bool CameraMoveX
+    {
+        get { return cameraMoveX; }
+        private set { CameraMoveX = cameraMoveX; }
+    }
 
-    public float jumpForce = 5f;
-    public float runSpeed = 6f;
+    private void Start()
+    {
+        previousPosition = playerPosition.position;
+    }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Jump();
-        }
+        Jump();
+    }
+
+    private void FixedUpdate()
+    {
+        Run(isRunUp);
     }
 
     void Jump()
     {
-        if (startGame || !rightWall)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            rb.AddForce(new Vector2(10f, jumpForce), ForceMode2D.Impulse);
-            rightWall = true;
-            startGame = false;
+            isRunUp = false; isRun = false;
+
+            if (startGame || (!rightWall && isTouchingWall))
+            {
+                rightWall = true;
+                rb.velocity = new Vector2(rb.velocity.x, 0f);
+                rb.AddForce(new Vector2(jumpForceX, jumpForceY), ForceMode2D.Impulse);
+                startGame = false;
+            }
+            else if (rightWall && isTouchingWall)
+            {
+                rightWall = !rightWall;
+                rb.velocity = new Vector2(rb.velocity.x, 0f);
+                rb.AddForce(new Vector2(-jumpForceX, jumpForceY), ForceMode2D.Impulse);
+            }
         }
-        else if (rightWall)
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("GameController"))
         {
-            rb.AddForce(new Vector2(-10f, jumpForce), ForceMode2D.Impulse);
-            rightWall = !rightWall;
+            cameraMoveX = !cameraMoveX;
         }
     }
 
@@ -41,8 +74,13 @@ public class Player : MonoBehaviour
         if (collision.gameObject.CompareTag("Wall"))
         {
             isTouchingWall = true;
-            ActivateGravity(false);
-            Run();
+            isRunUp = true;
+        }
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isTouchingWall = false;
+            isRun = true;
+            isRunUp = false;
         }
     }
 
@@ -51,18 +89,34 @@ public class Player : MonoBehaviour
         if (collision.gameObject.CompareTag("Wall"))
         {
             isTouchingWall = false;
-            ActivateGravity(true);
+            isRunUp = false;
+        }
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isRun = false;
         }
     }
 
-    private void ActivateGravity(bool activate)
+    void Run(bool isRunUp)
     {
-        rb.gravityScale = activate ? 1f : 0f;
-    }
-
-    void Run()
-    {
-        rb.velocity = new Vector2(rb.velocity.x, runSpeed * transform.localScale.y);
+        Vector3 currentPosition = playerPosition.position;
+        float deltaX = currentPosition.x - previousPosition.x;
+        if (isRunUp)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, runSpeed);
+        }
+        else if (!isRunUp) 
+        {
+            if (deltaX > 0)
+            {
+                rb.velocity = new Vector2(runSpeed, rb.velocity.y);
+            }
+            else if (deltaX < 0)
+            {
+                rb.velocity = new Vector2(-runSpeed, rb.velocity.y);
+            }
+            previousPosition = currentPosition;
+        }
     }
 }
 
