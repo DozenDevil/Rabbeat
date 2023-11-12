@@ -4,8 +4,14 @@ using Unity.PlasticSCM.Editor.WebApi;
 using UnityEditorInternal;
 using UnityEngine;
 
+
+
 public class Player : MonoBehaviour
 {
+    public AudioSource music;
+    public AudioSource soundJump;
+    public AudioSource soundRun;
+
     [SerializeField] private Transform playerPosition;
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private float jumpForceY = 10f;
@@ -43,7 +49,12 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
+            soundJump.Play();
+
             isRunUp = false; isRun = false;
+
+            if (startGame)
+                music.Play();
 
             if (startGame || (!rightWall && isTouchingWall))
             {
@@ -75,6 +86,7 @@ public class Player : MonoBehaviour
         {
             isTouchingWall = true;
             isRunUp = true;
+            soundRun.Play();
         }
         if (collision.gameObject.CompareTag("Ground"))
         {
@@ -85,11 +97,12 @@ public class Player : MonoBehaviour
     }
 
     private void OnCollisionExit2D(Collision2D collision)
-    {
+    {   
         if (collision.gameObject.CompareTag("Wall"))
         {
             isTouchingWall = false;
             isRunUp = false;
+            soundRun.Stop();
         }
         if (collision.gameObject.CompareTag("Ground"))
         {
