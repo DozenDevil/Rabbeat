@@ -33,6 +33,7 @@ public class Player : MonoBehaviour
     private void Start()
     {
         previousPosition = playerPosition.position;
+        EnablePlayerMovement();
     }
 
     private void Update()
@@ -45,6 +46,7 @@ public class Player : MonoBehaviour
         Run(isRunUp);
     }
 
+    #region Player Movement
     void Jump()
     {
         if (Input.GetKeyDown(KeyCode.Space))
@@ -72,14 +74,39 @@ public class Player : MonoBehaviour
         }
     }
 
+    void Run(bool isRunUp)
+    {
+        Vector3 currentPosition = playerPosition.position;
+        float deltaX = currentPosition.x - previousPosition.x;
+        if (isRunUp)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, runSpeed);
+        }
+        else if (!isRunUp)
+        {
+            if (deltaX > 0)
+            {
+                rb.velocity = new Vector2(runSpeed, rb.velocity.y);
+            }
+            else if (deltaX < 0)
+            {
+                rb.velocity = new Vector2(-runSpeed, rb.velocity.y);
+            }
+            previousPosition = currentPosition;
+        }
+    }
+    #endregion
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        // vertical or horizontal camera movement 
         if (collision.gameObject.CompareTag("GameController"))
         {
             cameraMoveX = !cameraMoveX;
         }
     }
 
+    #region Contact with wall/ground
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Wall"))
@@ -97,7 +124,7 @@ public class Player : MonoBehaviour
     }
 
     private void OnCollisionExit2D(Collision2D collision)
-    {   
+    {
         if (collision.gameObject.CompareTag("Wall"))
         {
             isTouchingWall = false;
@@ -109,27 +136,28 @@ public class Player : MonoBehaviour
             isRun = false;
         }
     }
+    #endregion
 
-    void Run(bool isRunUp)
+    #region DeathScreen
+    private void DisablePlayerMovement()
     {
-        Vector3 currentPosition = playerPosition.position;
-        float deltaX = currentPosition.x - previousPosition.x;
-        if (isRunUp)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, runSpeed);
-        }
-        else if (!isRunUp) 
-        {
-            if (deltaX > 0)
-            {
-                rb.velocity = new Vector2(runSpeed, rb.velocity.y);
-            }
-            else if (deltaX < 0)
-            {
-                rb.velocity = new Vector2(-runSpeed, rb.velocity.y);
-            }
-            previousPosition = currentPosition;
-        }
+        rb.bodyType = RigidbodyType2D.Static;
     }
+
+    private void EnablePlayerMovement()
+    {
+        rb.bodyType = RigidbodyType2D.Dynamic;
+    }
+
+    private void OnEnable()
+    {
+        DamageCollision.OnPlayerDeath += DisablePlayerMovement;
+    }
+
+    private void OnDisable()
+    {
+        DamageCollision.OnPlayerDeath -= DisablePlayerMovement;
+    }
+    #endregion
 }
 
