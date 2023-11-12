@@ -8,7 +8,6 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    public AudioSource music;
     public AudioSource soundJump;
     public AudioSource soundRun;
 
@@ -51,12 +50,10 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            soundJump.Play();
+            if(isTouchingWall)
+                soundJump.Play();
 
             isRunUp = false; isRun = false;
-
-            if (startGame)
-                music.Play();
 
             if (startGame || (!rightWall && isTouchingWall))
             {
