@@ -53,8 +53,6 @@ public class Player : MonoBehaviour
             if(isTouchingWall)
                 soundJump.Play();
 
-            isRunUp = false; isRun = false;
-
             if (startGame || (!rightWall && isTouchingWall))
             {
                 rightWall = true;
@@ -67,6 +65,13 @@ public class Player : MonoBehaviour
                 rightWall = !rightWall;
                 rb.velocity = new Vector2(rb.velocity.x, 0f);
                 rb.AddForce(new Vector2(-jumpForceX, jumpForceY), ForceMode2D.Impulse);
+            }
+            else if (isRun)
+            {
+                if (rb.velocity.x > 0)
+                    rb.AddForce(new Vector2(jumpForceX, 5f), ForceMode2D.Impulse);
+                if (rb.velocity.x < 0)
+                    rb.AddForce(new Vector2(-jumpForceX, 5f), ForceMode2D.Impulse);
             }
         }
     }
