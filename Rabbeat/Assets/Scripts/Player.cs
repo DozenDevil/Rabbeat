@@ -29,6 +29,9 @@ public class Player : MonoBehaviour
         private set { CameraMoveX = cameraMoveX; }
     }
 
+    public CurrencyManager cm;
+    private int carrotsCount;
+
     private void Start()
     {
         previousPosition = playerPosition.position;
@@ -105,6 +108,11 @@ public class Player : MonoBehaviour
         if (collision.gameObject.CompareTag("GameController"))
         {
             cameraMoveX = !cameraMoveX;
+        }
+        if (collision.gameObject.CompareTag("Carrot"))
+        {
+            Destroy(collision.gameObject);
+            cm.carrotCount++;
         }
     }
 
