@@ -38,16 +38,21 @@ public class GameManager : MonoBehaviour
         DamageCollision.OnPlayerDeath += EnableGameOverMenu;
     }
 
-    private void OnDisable()
-    {
-        DamageCollision.OnPlayerDeath -= EnableGameOverMenu;
-    }
-
     public void EnableGameOverMenu()
     {
         gameOverMenu.SetActive(true);
-        music.Stop();
+        StartCoroutine(SlowDown());
         firstPress = true;
+    }
+
+    IEnumerator SlowDown()
+    {
+        while(music.pitch > 0)
+        {
+            music.pitch -= 0.025f;
+            yield return new WaitForSeconds(0.05f);
+        }
+        music.Stop(); 
     }
 
     public void RestartLevel()
