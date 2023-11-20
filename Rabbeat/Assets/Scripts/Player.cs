@@ -17,6 +17,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float jumpForceX = 10f;
     [SerializeField] private float runSpeed = 6f;
 
+    private bool firstPress = true;
     private bool isTouchingWall;
     private bool rightWall;
     private bool startGame = true;
@@ -53,7 +54,14 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            if(isTouchingWall)
+            if(firstPress)
+            {
+                soundRun.mute = false;
+                firstPress = false;
+            }
+             
+
+            if(isTouchingWall || isRun)
                 soundJump.Play();
 
             if (startGame || (!rightWall && isTouchingWall))
@@ -119,11 +127,11 @@ public class Player : MonoBehaviour
     #region Contact with wall/ground
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        soundRun.Play();
         if (collision.gameObject.CompareTag("Wall"))
         {
             isTouchingWall = true;
-            isRunUp = true;
-            soundRun.Play();
+            isRunUp = true;   
         }
         if (collision.gameObject.CompareTag("Ground"))
         {
