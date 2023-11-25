@@ -13,8 +13,16 @@ public class GameManager : MonoBehaviour
     public GameObject gameOverMenu;
     public bool firstPress = true;
 
+    private void LoadSettings()
+    {
+        music.volume = SettingsMenu.Settings.volume_value;
+        music.mute = SettingsMenu.Settings.mute_state;
+    }
+
     private void Start()
     {
+        LoadSettings();
+
         music.Play();
         music.Pause();
     }

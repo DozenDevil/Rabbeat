@@ -24,6 +24,16 @@ public class Player : MonoBehaviour
     private bool isRunUp, isRun;
     private Vector3 previousPosition;
     private bool cameraMoveX;
+
+    private void LoadSettings()
+    {
+        soundJump.volume = SettingsMenu.Settings.volume_value;
+        soundRun.volume = SettingsMenu.Settings.volume_value;
+
+        soundJump.mute = SettingsMenu.Settings.mute_state;
+        soundRun.mute = SettingsMenu.Settings.mute_state;
+    }
+
     public bool CameraMoveX
     {
         get { return cameraMoveX; }
